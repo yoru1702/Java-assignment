@@ -1,2 +1,5 @@
-id,name,price,stock
-0001,Coke,25.0,220
+id,name,price,stockc
+0001,Coke,25.0,200
+0002,Pepsi,20.0,80
+0006,Tomato,20.0,20
+0003,KooKoo,200.0,490

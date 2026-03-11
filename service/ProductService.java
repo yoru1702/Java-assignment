@@ -17,8 +17,7 @@ public class ProductService {
                     row[0],
                     row[1],
                     Double.parseDouble(row[2]),
-                    Integer.parseInt(row[3])
-            ));
+                    Integer.parseInt(row[3])));
         }
         return list;
     }
@@ -40,5 +39,29 @@ public class ProductService {
         }
 
         CSVUtil.write(FILE, lines);
+    }
+
+    public void updateProduct(Product product) {
+
+        List<String[]> data = CSVUtil.read("products.csv");
+
+        List<String> lines = new ArrayList<>();
+
+        // header
+        lines.add("id,name,price,stock");
+
+        for (String[] row : data) {
+
+            if (row[0].equals(product.getId())) {
+
+                row[1] = product.getName();
+                row[2] = String.valueOf(product.getPrice());
+                row[3] = String.valueOf(product.getStock());
+            }
+
+            lines.add(String.join(",", row));
+        }
+
+        CSVUtil.write("products.csv", lines);
     }
 }

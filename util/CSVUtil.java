@@ -31,4 +31,12 @@ public class CSVUtil {
             e.printStackTrace();
         }
     }
+
+    public static void append(String file, String line) {
+        try (PrintWriter pw = new PrintWriter(new FileWriter(file, true))) {
+            pw.println(line);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
