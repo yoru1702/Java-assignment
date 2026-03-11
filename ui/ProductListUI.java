@@ -2,6 +2,7 @@ package ui;
 
 import model.Product;
 import service.ProductService;
+import util.WindowState;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -20,7 +21,7 @@ public class ProductListUI extends JFrame {
 
     public ProductListUI() {
         setTitle("จัดการรายการสินค้า");
-        setSize(850, 600);
+        setSize(WindowState.width, WindowState.height);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout(10, 10));
@@ -50,7 +51,7 @@ public class ProductListUI extends JFrame {
             @Override
             public boolean isCellEditable(int row, int column) { return false; }
         };
-
+        
         table = new JTable(model);
         table.setRowHeight(30);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);

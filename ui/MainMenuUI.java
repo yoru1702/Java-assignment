@@ -1,6 +1,7 @@
 package ui;
 
 import javax.swing.*;
+import util.WindowState;
 
 import service.ProductService;
 
@@ -8,12 +9,11 @@ import java.awt.*;
 
 public class MainMenuUI extends JFrame {
     private ProductService productService = new ProductService();
-    private ReportUI reportUI = new ReportUI();
 
     public MainMenuUI() {
 
         setTitle("MiniMart - Dashboard");
-        setSize(1100, 700);
+        setSize(WindowState.width, WindowState.height);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
@@ -38,7 +38,7 @@ public class MainMenuUI extends JFrame {
         JButton btnAdd = createMenuButton("เพิ่มสินค้าใหม่");
         JButton btnSell = createMenuButton("ขายสินค้า (POS)");
         JButton btnList = createMenuButton("คลังสินค้า");
-        JButton btnHistory = createMenuButton("ประวัติการขาย");
+        JButton btnHistory = createMenuButton("ประวัติการเพิ่มสินค้า");
         JButton btnReport = createMenuButton("สรุปยอดขาย");
         JButton btnExit = createMenuButton("ปิดโปรแกรม");
 
@@ -102,7 +102,7 @@ public class MainMenuUI extends JFrame {
             dispose();
         });
         btnHistory.addActionListener(e -> {
-            new HistoryUI();
+            new StockHistoryUI();
             dispose();
         });
         btnReport.addActionListener(e -> {

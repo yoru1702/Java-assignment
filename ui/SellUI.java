@@ -2,6 +2,7 @@ package ui;
 
 import model.*;
 import service.*;
+import util.WindowState;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -27,7 +28,7 @@ public class SellUI extends JFrame {
     public SellUI() {
 
         setTitle("ระบบขายสินค้า (POS System)");
-        setSize(1000, 650);
+        setSize(WindowState.width, WindowState.height);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout(10, 10));
@@ -36,8 +37,7 @@ public class SellUI extends JFrame {
         // CENTER: ตารางสินค้า และ ตะกร้า
         // ===============================
         // ตารางสินค้าในร้าน (ซ้าย)
-        productModel = new DefaultTableModel(new String[] { "ID", "ชื่อสินค้า", "ราคา", "คงเหลือ" }, 0);
-        JTable productTable = new JTable(productModel);
+        productModel = new DefaultTableModel(new String[] { "ID", "ชื่อสินค้า", "ราคาขาย", "ราคาทุน", "คงเหลือ", "นำเข้าเมื่อ" }, 0);        JTable productTable = new JTable(productModel);
         productTable.setRowHeight(25);
         productTable.getTableHeader().setFont(new Font("Tahoma", Font.BOLD, 12));
 
@@ -98,7 +98,7 @@ public class SellUI extends JFrame {
         JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         actionPanel.setOpaque(false);
 
-        JButton btnConfirm = new JButton("ยืนยันการขาย (F10)");
+        JButton btnConfirm = new JButton("ยืนยันการขาย");
         btnConfirm.setPreferredSize(new Dimension(180, 50));
         btnConfirm.setBackground(new Color(39, 174, 96));
         btnConfirm.setForeground(Color.WHITE);
@@ -188,18 +188,25 @@ public class SellUI extends JFrame {
                 JOptionPane.showMessageDialog(this, "ไม่มีสินค้าในตะกร้า");
                 return;
             }
+            List<Product> allProducts = productService.getAll();
             for (CartItem item : cart) {
-                Product p = item.getProduct();
-                p.setStock(p.getStock() - item.getQty());
-                productService.updateProduct(p);
+                for (Product p : allProducts) {
+                    if (p.getId().equals(item.getProduct().getId())) {
+                        p.setStock(p.getStock() - item.getQty());
+                        break;
+                    }
+                }
             }
+            // --- จุดที่ต้องเพิ่ม: บันทึกรายการที่อัปเดตสต็อกแล้วลงไฟล์ ---
+            productService.saveAll(allProducts);
+
             saleService.saveSale(cart);
             JOptionPane.showMessageDialog(this, "ขายสินค้าสำเร็จ!");
 
             cart.clear();
             cartModel.setRowCount(0);
             updateTotal();
-            loadData();
+            loadData(); // ตารางจะดึงข้อมูลใหม่จากไฟล์ที่เพิ่งบันทึกมาแสดง
         });
         btnBack.addActionListener(e -> {
             new MainMenuUI();
@@ -233,55 +240,64 @@ public class SellUI extends JFrame {
         updateTotal();
     }
 
-    private void handleProductNotFound(String id, int qty) { 
-    Object[] options = { "เพิ่มใหม่", "กรอกเอง", "ยกเลิก" };
-    int choice = JOptionPane.showOptionDialog(this, "ไม่พบรหัสสินค้า: " + id, "ไม่พบสินค้า",
-            JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, options, options[0]);
-    if (choice == 0) {
-        new ProductFormUI(null);
-        dispose();
-    } else if (choice == 1) {
-        // --- ส่วนที่กรอกเอง ---
-        String name = JOptionPane.showInputDialog(this, "ชื่อสินค้า (เฉพาะบิล)");
-        if (name == null || name.trim().isEmpty()) return;
+    private void handleProductNotFound(String id, int qty) {
+        Object[] options = { "เพิ่มใหม่", "กรอกเอง", "ยกเลิก" };
+        int choice = JOptionPane.showOptionDialog(this, "ไม่พบรหัสสินค้า: " + id, "ไม่พบสินค้า",
+                JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, options, options[0]);
+        if (choice == 0) {
+            new ProductFormUI(null);
+            dispose();
+        } else if (choice == 1) {
+            // --- ส่วนที่กรอกเอง ---
+            String name = JOptionPane.showInputDialog(this, "ชื่อสินค้า (เฉพาะบิล)");
+            if (name == null || name.trim().isEmpty())
+                return;
 
-        String priceStr = JOptionPane.showInputDialog(this, "ราคาสินค้า");
-        if (priceStr == null) return;
+            String priceStr = JOptionPane.showInputDialog(this, "ราคาสินค้า");
+            if (priceStr == null)
+                return;
 
-        try {
-            double price = Double.parseDouble(priceStr);
-            Product temp = new Product(id, name, price, qty);
-            cart.add(new CartItem(temp, qty));
-            cartModel.addRow(new Object[] { id, name, qty, price, price * qty });
-            
-            updateTotal();
-            txtId.setText("");
-            txtQty.setText("1");
-            
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "ราคาต้องเป็นตัวเลขเท่านั้น");
+            try {
+                double price = Double.parseDouble(priceStr);
+                Product temp = new Product(id, name, price, qty);
+                cart.add(new CartItem(temp, qty));
+                cartModel.addRow(new Object[] { id, name, qty, price, price * qty });
+
+                updateTotal();
+                txtId.setText("");
+                txtQty.setText("1");
+
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "ราคาต้องเป็นตัวเลขเท่านั้น");
+            }
         }
     }
-}
-    private void updateTotal() { 
+
+    private void updateTotal() {
         double sum = 0;
         for (CartItem c : cart)
             sum += c.getTotal();
 
         lblTotal.setText("" + sum);
     }
-    private void loadData() {
-        productModel.setRowCount(0);
-        for (Product p : productService.getAll()) {
 
-            productModel.addRow(new Object[] {
-                    p.getId(),
-                    p.getName(),
-                    p.getPrice(),
-                    p.getStock()
-            });
-        }
+    private void loadData() {
+    productModel.setRowCount(0);
+
+    List<Product> list = productService.getAll();
+    System.out.println("Products size = " + list.size());
+
+    for (Product p : list) {
+        productModel.addRow(new Object[]{
+                p.getId(),
+                p.getName(),
+                p.getPrice(),
+                p.getCostPrice(),
+                p.getStock(),
+                p.getImportedAt()
+        });
     }
+}
 
     private JPanel createTitledPanel(String title, JComponent component) {
         JPanel panel = new JPanel(new BorderLayout());
