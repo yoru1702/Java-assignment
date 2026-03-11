@@ -16,7 +16,7 @@ public class ReportUI extends JFrame {
     private JTable table;
 
     public ReportUI() {
-        setTitle("📊 รายงานสรุปยอดขาย");
+        setTitle("รายงานสรุปยอดขาย");
         setSize(900, 600);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
@@ -98,14 +98,11 @@ public class ReportUI extends JFrame {
         double sum = 0;
         List<String[]> data = CSVUtil.read("sales.csv");
 
-        LocalDate now = LocalDate.now(); // วันนี้ (ค.ศ.)
-        // ข้อมูลใน CSV เป็น พ.ศ. เช่น 2569-03-11
-        // เราจะใช้ความต่าง 543 ปีในการเปรียบเทียบ
+        LocalDate now = LocalDate.now();
 
         for (String[] row : data) {
             try {
-                // row[0] = "2569-03-11 15:46"
-                String dateStr = row[0].split(" ")[0]; // "2569-03-11"
+                String dateStr = row[0].split(" ")[0];
                 String[] parts = dateStr.split("-");
                 int yearBE = Integer.parseInt(parts[0]);
                 int month = Integer.parseInt(parts[1]);
@@ -136,7 +133,6 @@ public class ReportUI extends JFrame {
                     sum += Double.parseDouble(row[5]);
                 }
             } catch (Exception ex) {
-                // ข้ามบรรทัดที่ header หรือข้อมูลผิดพลาด
             }
         }
         lblTotal.setText(String.format("%,.2f", sum));
