@@ -1,2 +1,3 @@
-id,name,price,stock
-0001,Coke,12.0,220
+id,name,price,costPrice,stock,importedAt
+001,cokee,12.0,9.0,100,11/03/2026 16:59
+002,cok,12.0,9.0,100,11/04/2026 16:59

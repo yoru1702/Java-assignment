@@ -19,7 +19,7 @@ public class MainMenuUI extends JFrame {
         }
 
         WindowState.track(this);
-        
+
         setLayout(new GridLayout(7, 1));
 
         JButton btnAdd = new JButton("เพิ่มสินค้า");
@@ -27,12 +27,14 @@ public class MainMenuUI extends JFrame {
         JButton btnList = new JButton("รายการสินค้า");
         JButton btnHistory = new JButton("ประวัติการขาย");
         JButton btnReport = new JButton("รายงานยอดขาย");
+        JButton btnStockHistory = new JButton("ประวัติ Stock");
 
         add(btnAdd);
         add(btnSell);
         add(btnList);
         add(btnHistory);
         add(btnReport);
+        add(btnStockHistory);
 
         btnSell.addActionListener(e -> {
             new SellUI();
@@ -56,6 +58,11 @@ public class MainMenuUI extends JFrame {
 
         btnReport.addActionListener(e -> {
             new ReportUI();
+            dispose();
+        });
+
+        btnStockHistory.addActionListener(e -> {
+            new StockHistoryUI();
             dispose();
         });
 
