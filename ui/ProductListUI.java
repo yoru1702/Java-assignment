@@ -2,6 +2,7 @@ package ui;
 
 import model.Product;
 import service.ProductService;
+import util.WindowState;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -16,7 +17,14 @@ public class ProductListUI extends JFrame {
     public ProductListUI() {
 
         setTitle("รายการสินค้า");
-        setSize(600, 400);
+        setSize(WindowState.width, WindowState.height);
+        if (WindowState.x != -1) {
+            setLocation(WindowState.x, WindowState.y);
+        } else {
+            setLocationRelativeTo(null);
+        }
+
+        WindowState.track(this);
 
         model = new DefaultTableModel(
                 new String[]{"ID", "Name", "Price", "Stock"}, 0);

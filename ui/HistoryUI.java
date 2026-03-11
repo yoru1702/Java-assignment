@@ -1,6 +1,7 @@
 package ui;
 
 import util.CSVUtil;
+import util.WindowState;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -11,7 +12,14 @@ public class HistoryUI extends JFrame {
     public HistoryUI() {
 
         setTitle("ประวัติการขาย");
-        setSize(700, 400);
+        setSize(WindowState.width, WindowState.height);
+        if (WindowState.x != -1) {
+            setLocation(WindowState.x, WindowState.y);
+        } else {
+            setLocationRelativeTo(null);
+        }
+
+        WindowState.track(this);
 
         DefaultTableModel model =
                 new DefaultTableModel(

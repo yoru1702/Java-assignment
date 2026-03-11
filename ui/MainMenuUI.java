@@ -1,6 +1,9 @@
 package ui;
 
 import javax.swing.*;
+
+import util.WindowState;
+
 import java.awt.*;
 
 public class MainMenuUI extends JFrame {
@@ -8,7 +11,15 @@ public class MainMenuUI extends JFrame {
     public MainMenuUI() {
 
         setTitle("POS System");
-        setSize(400, 500);
+        setSize(WindowState.width, WindowState.height);
+        if (WindowState.x != -1) {
+            setLocation(WindowState.x, WindowState.y);
+        } else {
+            setLocationRelativeTo(null);
+        }
+
+        WindowState.track(this);
+        
         setLayout(new GridLayout(7, 1));
 
         JButton btnAdd = new JButton("เพิ่มสินค้า");

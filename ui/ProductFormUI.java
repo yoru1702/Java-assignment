@@ -2,6 +2,7 @@ package ui;
 
 import model.Product;
 import service.ProductService;
+import util.WindowState;
 
 import javax.swing.*;
 import java.awt.*;
@@ -17,7 +18,14 @@ public class ProductFormUI extends JFrame {
         this.editProduct = product;
 
         setTitle(product == null ? "เพิ่มสินค้า" : "แก้ไขสินค้า");
-        setSize(400, 300);
+        setSize(WindowState.width, WindowState.height);
+        if (WindowState.x != -1) {
+            setLocation(WindowState.x, WindowState.y);
+        } else {
+            setLocationRelativeTo(null);
+        }
+
+        WindowState.track(this);
         setLayout(new GridLayout(5, 2));
 
         JTextField txtId = new JTextField();

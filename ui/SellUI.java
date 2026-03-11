@@ -2,6 +2,7 @@ package ui;
 
 import model.*;
 import service.*;
+import util.WindowState;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -23,7 +24,14 @@ public class SellUI extends JFrame {
     public SellUI() {
 
         setTitle("ขายสินค้า");
-        setSize(700, 500);
+        setSize(WindowState.width, WindowState.height);
+        if (WindowState.x != -1) {
+            setLocation(WindowState.x, WindowState.y);
+        } else {
+            setLocationRelativeTo(null);
+        }
+
+        WindowState.track(this);
 
         model = new DefaultTableModel(
                 new String[]{"ID", "Name", "Qty", "Price", "Total"}, 0);

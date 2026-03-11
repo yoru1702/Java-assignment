@@ -1,6 +1,7 @@
 package ui;
 
 import util.CSVUtil;
+import util.WindowState;
 
 import javax.swing.*;
 import java.awt.*;
@@ -10,7 +11,14 @@ public class ReportUI extends JFrame {
     public ReportUI() {
 
         setTitle("รายงานยอดขาย");
-        setSize(400, 200);
+        setSize(WindowState.width, WindowState.height);
+        if (WindowState.x != -1) {
+            setLocation(WindowState.x, WindowState.y);
+        } else {
+            setLocationRelativeTo(null);
+        }
+
+        WindowState.track(this);
 
         double sum = 0;
 
