@@ -74,15 +74,16 @@ public class ProductListUI extends JFrame {
 
     private void loadData() {
 
-        model.setRowCount(0);
+    model.setRowCount(0);
 
-        for (Product p : service.getAll()) {
-            model.addRow(new Object[]{
-                    p.getId(),
-                    p.getName(),
-                    p.getPrice(),
-                    p.getStock()
-            });
-        }
+    for (Product p : service.getAll()) {
+
+        model.addRow(new Object[]{
+                p.getId(),
+                p.getName(),
+                p.getPrice(),
+                p.getStock()
+        });
     }
+}
 }

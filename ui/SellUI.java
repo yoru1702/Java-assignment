@@ -8,15 +8,21 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class SellUI extends JFrame {
 
     private ProductService productService = new ProductService();
     private SaleService saleService = new SaleService();
-
     private List<CartItem> cart = new ArrayList<>();
 
-    private DefaultTableModel model;
+    // ตารางสินค้าในร้าน
+    private DefaultTableModel productModel;
+
+    // ตารางตะกร้า
+    private DefaultTableModel cartModel;
+
     private JLabel lblTotal = new JLabel("0");
 
     private JTextField txtId = new JTextField();
@@ -25,19 +31,62 @@ public class SellUI extends JFrame {
     public SellUI() {
 
         setTitle("ขายสินค้า");
-        setSize(750, 500);
+        setSize(950, 550);
         setLocationRelativeTo(null);
+        setLayout(new BorderLayout());
 
-        model = new DefaultTableModel(
+        // ===============================
+        // ตารางสินค้าในร้าน (ซ้าย)
+        // ===============================
+
+        productModel = new DefaultTableModel(
+                new String[] { "ID", "Name", "Price", "Stock" }, 0);
+
+        JTable productTable = new JTable(productModel);
+        productTable.setRowHeight(25);
+
+        JScrollPane productScroll = new JScrollPane(productTable);
+
+        JPanel leftPanel = new JPanel(new BorderLayout());
+        leftPanel.setBorder(BorderFactory.createTitledBorder("สินค้าในร้าน"));
+        leftPanel.add(productScroll);
+        loadData();
+
+        
+        // ===============================
+        // ตารางตะกร้า (ขวา)
+        // ===============================
+
+        cartModel = new DefaultTableModel(
                 new String[] { "ID", "Name", "Qty", "Price", "Total" }, 0);
 
-        JTable table = new JTable(model);
-        table.setRowHeight(25);
+        JTable cartTable = new JTable(cartModel);
+        cartTable.setRowHeight(25);
 
-        JScrollPane scroll = new JScrollPane(table);
+        JScrollPane cartScroll = new JScrollPane(cartTable);
 
-        // ===== TOP PANEL =====
-        JPanel top = new JPanel(new GridLayout(2, 4, 10, 10));
+        JPanel rightPanel = new JPanel(new BorderLayout());
+        rightPanel.setBorder(BorderFactory.createTitledBorder("ตะกร้าสินค้า"));
+        rightPanel.add(cartScroll);
+
+        // ===============================
+        // แบ่งหน้าจอ
+        // ===============================
+
+        JSplitPane splitPane = new JSplitPane(
+                JSplitPane.HORIZONTAL_SPLIT,
+                leftPanel,
+                rightPanel);
+
+        splitPane.setDividerLocation(450);
+
+        add(splitPane, BorderLayout.CENTER);
+
+        // ===============================
+        // TOP PANEL
+        // ===============================
+
+        JPanel top = new JPanel(new GridLayout(1, 6, 10, 10));
         top.setBorder(BorderFactory.createTitledBorder("เพิ่มสินค้า"));
 
         JButton btnAdd = new JButton("เพิ่มสินค้า");
@@ -51,7 +100,12 @@ public class SellUI extends JFrame {
         top.add(new JLabel());
         top.add(btnAdd);
 
-        // ===== BOTTOM PANEL =====
+        add(top, BorderLayout.NORTH);
+
+        // ===============================
+        // BOTTOM PANEL
+        // ===============================
+
         JPanel bottom = new JPanel();
 
         JButton btnConfirm = new JButton("ยืนยันการขาย");
@@ -62,9 +116,29 @@ public class SellUI extends JFrame {
         bottom.add(btnConfirm);
         bottom.add(btnBack);
 
-        add(top, BorderLayout.NORTH);
-        add(scroll, BorderLayout.CENTER);
         add(bottom, BorderLayout.SOUTH);
+
+        // ===============================
+        // ADD PRODUCT
+        // ===============================
+
+        // กดเลือกจากตารางสินค้าซ้ายมือ //
+        productTable.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                int row = productTable.getSelectedRow();
+                if (row != -1) {
+                    // คลิกแล้วเอารหัสมาใส่ในช่อง txtId
+                    String id = productTable.getValueAt(row, 0).toString();
+                    txtId.setText(id);
+                    
+                    // ถ้า Double Click ให้กดปุ่ม Add ให้เลย
+                    if (e.getClickCount() == 2) {
+                        btnAdd.doClick();
+                    }
+                }
+            }
+        });
 
         btnAdd.addActionListener(e -> {
             // ตรวจสอบข้อมูลการกรอก //
@@ -113,7 +187,7 @@ public class SellUI extends JFrame {
 
                     cart.add(item);
 
-                    model.addRow(new Object[] {
+                    cartModel.addRow(new Object[] {
                             id,
                             name,
                             qty,
@@ -170,8 +244,8 @@ public class SellUI extends JFrame {
 
                     c.setQty(newQty);
 
-                    model.setValueAt(newQty, i, 2);
-                    model.setValueAt(newQty * p.getPrice(), i, 4);
+                    cartModel.setValueAt(newQty, i, 2);
+                    cartModel.setValueAt(newQty * p.getPrice(), i, 4);
 
                     found = true;
                     break;
@@ -188,7 +262,7 @@ public class SellUI extends JFrame {
 
                 cart.add(item);
 
-                model.addRow(new Object[] {
+                cartModel.addRow(new Object[] {
                         p.getId(),
                         p.getName(),
                         qty,
@@ -232,8 +306,9 @@ public class SellUI extends JFrame {
             JOptionPane.showMessageDialog(this, "ขายสินค้าสำเร็จ");
 
             cart.clear();
-            model.setRowCount(0);
+            cartModel.setRowCount(0);
             updateTotal();
+            loadData();
         });
 
         // ===============================
@@ -254,5 +329,20 @@ public class SellUI extends JFrame {
             sum += c.getTotal();
 
         lblTotal.setText("" + sum);
+    }
+
+    private void loadData() {
+
+        productModel.setRowCount(0);
+
+        for (Product p : productService.getAll()) {
+
+            productModel.addRow(new Object[] {
+                    p.getId(),
+                    p.getName(),
+                    p.getPrice(),
+                    p.getStock()
+            });
+        }
     }
 }
