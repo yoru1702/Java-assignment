@@ -12,13 +12,11 @@ public class SaleService {
 
     public void saveSale(List<CartItem> cart) {
 
-        List<String> lines = new ArrayList<>();
-        lines.add("datetime,productId,name,qty,price,total");
-
         String time = new SimpleDateFormat("yyyy-MM-dd HH:mm")
                 .format(new Date());
 
         for (CartItem item : cart) {
+
             SaleRecord s = new SaleRecord(
                     time,
                     item.getProduct().getId(),
@@ -28,9 +26,7 @@ public class SaleService {
                     item.getTotal()
             );
 
-            lines.add(s.toCSV());
+            CSVUtil.append(FILE, s.toCSV());
         }
-
-        CSVUtil.write(FILE, lines);
     }
 }
