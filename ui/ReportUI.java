@@ -20,7 +20,14 @@ public class ReportUI extends JFrame {
 
     public ReportUI() {
         setTitle("รายงานสรุปยอดขาย");
-        setSize(950, 650); // ปรับขนาดให้สมดุล
+        setSize(WindowState.width, WindowState.height);
+        if (WindowState.x != -1) {
+            setLocation(WindowState.x, WindowState.y);
+        } else {
+            setLocationRelativeTo(null);
+        }
+
+        WindowState.track(this);
         setLocationRelativeTo(null);
         getContentPane().setBackground(Color.WHITE); // พื้นหลังขาวสะอาด
         setLayout(new BorderLayout());
