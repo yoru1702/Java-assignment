@@ -1,2 +1,4 @@
-id,name,price,stock
-0001,Coke,25.0,220
+id,name,price,costPrice,stock,importedAt
+0001,Coke,20.00,15.00,1000,11/03/2026 20:58
+0002,Pepsi,20.00,15.00,500,11/03/2026 20:58
+0003,Mama หมูสับ,10.00,8.00,200,11/03/2026 21:33
